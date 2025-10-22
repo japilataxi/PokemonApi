@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>PokeApp</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <img src="assets/logo.jpeg" alt="Logo">
+<h1>Busca un Pokémon</h1>
+<input id="search" placeholder="Nombre o id..." autocomplete="off"/>
+<div id="suggestions"></div>
+
+<h2>Detalles</h2>
+<div id="details"></div>
+
+<h2>Listado (endpoint)</h2>
+<div id="list"></div>
+
+<script type="module">
+  import { PokemonController } from './js/controllers/pokemonController.js';
+  PokemonController.init();
+</script>
+</body>
+</html>
