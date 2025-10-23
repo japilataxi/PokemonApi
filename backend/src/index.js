@@ -4,12 +4,20 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import pkg from 'pg';
 import dotenv from 'dotenv';
+import cors from 'cors'; // 👈 Importar cors
 
 dotenv.config(); // lee las variables del archivo .env
 const { Pool } = pkg;
 
 const app = express();
 app.use(bodyParser.json());
+
+// 👇 Agregar CORS antes de las rutas
+app.use(cors({
+  origin: 'http://localhost:8080', // dominio frontend
+  credentials: true
+}));
+
 app.use(express.static('../frontend/public')); // sirve tus páginas HTML
 
 // conectar con PostgreSQL usando DATABASE_URL
@@ -22,10 +30,18 @@ const PORT = process.env.PORT || 3000;
 app.post('/auth/login', async (req, res) => {
   const { user, password } = req.body;
   try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1 AND password = $2', [user, password]);
-    if (result.rows.length === 0) return res.status(401).json({ error: 'Credenciales incorrectas' });
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 AND password = $2',
+      [user, password]
+    );
+    if (result.rows.length === 0)
+      return res.status(401).json({ error: 'Credenciales incorrectas' });
 
-    const token = jwt.sign({ id: result.rows[0].id, username: result.rows[0].username }, SECRET, { expiresIn: '8h' });
+    const token = jwt.sign(
+      { id: result.rows[0].id, username: result.rows[0].username },
+      SECRET,
+      { expiresIn: '8h' }
+    );
     res.json({ token });
   } catch (err) {
     console.error(err);
