@@ -58,38 +58,14 @@ app.get('/api/pokemon/autocomplete', auth, async (req, res) => {
 });
 
 // BUSCAR pokémon por ID o nombre
-// BUSCAR pokémon por ID o nombre y guardar búsqueda
 app.get('/api/pokemon/:id', auth, async (req, res) => {
-  const query = req.params.id.toLowerCase();
   try {
-    const p = await fetch(`${POKE_BASE}/pokemon/${query}`).then(r => r.json());
-    
-    // Guardar la búsqueda en la base
-    await pool.query(
-      'INSERT INTO searches (user_id, query, created_at) VALUES ($1, $2, NOW())',
-      [req.user.id, query]
-    );
-
+    const p = await fetch(`${POKE_BASE}/pokemon/${req.params.id}`).then(r => r.json());
     res.json(p);
   } catch {
     res.status(404).json({ error: 'No encontrado' });
   }
 });
-
-// HISTORIAL de búsquedas del usuario
-app.get('/api/searches', auth, async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT query, created_at FROM searches WHERE user_id = $1 ORDER BY created_at DESC',
-      [req.user.id]
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener historial' });
-  }
-});
-
 
 // LISTADO paginado
 app.get('/api/pokemons', auth, async (req, res) => {
